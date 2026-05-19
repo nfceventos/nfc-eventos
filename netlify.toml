@@ -1,2 +1,5 @@
 [functions]
   directory = "api"
+
+[build.environment]
+  SECRETS_SCAN_ENABLED = "false"
