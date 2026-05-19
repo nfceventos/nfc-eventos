@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sube tus fotos</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap"
+    rel="stylesheet"
+  />
+  <!-- Cargamos la configuración de eventos ANTES que cualquier otro script -->
+  <script src="eventos.js"></script>
+
+  <style>
+    :root {
+      --color-principal: #7A2E4B;
+      --color-fondo:     #FDF5F8;
+      --color-texto:     #2d2d2d;
+      --radio:           12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--color-fondo);
+      color: var(--color-texto);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────── */
+    header {
+      width: 100%;
+      background: var(--color-principal);
+      color: #fff;
+      text-align: center;
+      padding: 2.5rem 1.5rem 2rem;
+    }
+    header .emoji { font-size: 2.5rem; display: block; margin-bottom: .5rem; }
+    header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+    }
+    header p.tipo {
+      font-size: .9rem;
+      font-weight: 300;
+      opacity: .85;
+      margin-top: .3rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    header p.fecha {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      opacity: .9;
+      margin-top: .4rem;
+    }
+
+    /* ── CARD PRINCIPAL ─────────────────────────────────── */
+    main {
+      width: 100%;
+      max-width: 480px;
+      padding: 2rem 1.5rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .mensaje {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      text-align: center;
+      color: var(--color-principal);
+      line-height: 1.5;
+    }
+
+    /* ── ZONA DE DROP ───────────────────────────────────── */
+    .drop-zone {
+      border: 2px dashed var(--color-principal);
+      border-radius: var(--radio);
+      padding: 2.5rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: background .2s;
+      background: #fff;
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      background: color-mix(in srgb, var(--color-principal) 8%, #fff);
+    }
+    .drop-zone .icon { font-size: 2.5rem; display: block; margin-bottom: .75rem; }
+    .drop-zone p { font-size: .95rem; color: #666; line-height: 1.5; }
+    .drop-zone strong { color: var(--color-principal); }
+
+    #fileInput { display: none; }
+
+    /* ── PREVIEW ────────────────────────────────────────── */
+    #preview-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    #preview-img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border-radius: var(--radio);
+      border: 2px solid var(--color-principal);
+    }
+    .btn-cambiar {
+      background: none;
+      border: none;
+      color: #888;
+      font-size: .85rem;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* ── BOTÓN SUBIR ────────────────────────────────────── */
+    .btn-subir {
+      width: 100%;
+      background: var(--color-principal);
+      color: #fff;
+      border: none;
+      border-radius: var(--radio);
+      padding: 1rem;
+      font-size: 1.05rem;
+      font-family: 'Lato', sans-serif;
+      font-weight: 700;
+      letter-spacing: .05em;
+      cursor: pointer;
+      display: none;
+      transition: opacity .2s;
+    }
+    .btn-subir:hover { opacity: .88; }
+    .btn-subir:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── BARRA DE PROGRESO ──────────────────────────────── */
+    .progress-wrap {
+      display: none;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    .progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--color-principal);
+      width: 0%;
+      transition: width .3s;
+      border-radius: 999px;
+    }
+    .progress-txt { font-size: .85rem; color: #666; text-align: center; }
+
+    /* ── ÉXITO ──────────────────────────────────────────── */
+    #success-msg {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      text-align: center;
+      background: #fff;
+      border-radius: var(--radio);
+      padding: 2rem;
+      border: 2px solid var(--color-principal);
+    }
+    #success-msg .check { font-size: 3rem; }
+    #success-msg h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      color: var(--color-principal);
+    }
+    #success-msg p { font-size: .95rem; color: #555; line-height: 1.6; }
+    .btn-otra {
+      background: var(--color-principal);
+      color: #fff;
+      border: none;
+      border-radius: var(--radio);
+      padding: .75rem 2rem;
+      font-size: .95rem;
+      cursor: pointer;
+      font-family: 'Lato', sans-serif;
+      font-weight: 700;
+      transition: opacity .2s;
+    }
+    .btn-otra:hover { opacity: .88; }
+
+    /* ── ERROR ──────────────────────────────────────────── */
+    .error-msg {
+      display: none;
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: var(--radio);
+      padding: 1rem;
+      font-size: .9rem;
+      color: #b91c1c;
+      text-align: center;
+    }
+
+    /* ── EVENTO NO ENCONTRADO ───────────────────────────── */
+    #not-found {
+      display: none;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+    #not-found h2 { font-size: 1.4rem; margin-bottom: .5rem; }
+    #not-found p  { color: #666; }
+
+    footer {
+      margin-top: auto;
+      padding: 1.5rem;
+      font-size: .75rem;
+      color: #aaa;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Si el evento existe, este contenido se rellena por JS -->
+  <header id="header" style="display:none">
+    <span class="emoji" id="h-emoji"></span>
+    <h1 id="h-nombre"></h1>
+    <p class="tipo" id="h-tipo"></p>
+    <p class="fecha" id="h-fecha"></p>
+  </header>
+
+  <main id="main-content" style="display:none">
+
+    <p class="mensaje" id="p-mensaje"></p>
+
+    <!-- Drop Zone -->
+    <div class="drop-zone" id="dropZone">
+      <span class="icon">📷</span>
+      <p>
+        <strong>Pulsa aquí para elegir una foto</strong><br>
+        o arrastra la imagen a esta zona
+      </p>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" capture="environment" />
+
+    <!-- Preview -->
+    <div id="preview-container">
+      <img id="preview-img" src="" alt="Vista previa" />
+      <button class="btn-cambiar" id="btnCambiar">Cambiar foto</button>
+    </div>
+
+    <!-- Botón subir -->
+    <button class="btn-subir" id="btnSubir">📤 Subir foto</button>
+
+    <!-- Progreso -->
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+      <p class="progress-txt" id="progressTxt">Subiendo...</p>
+    </div>
+
+    <!-- Error -->
+    <div class="error-msg" id="errorMsg"></div>
+
+    <!-- Éxito -->
+    <div id="success-msg">
+      <span class="check">✅</span>
+      <h2>¡Foto enviada!</h2>
+      <p id="success-txt"></p>
+      <button class="btn-otra" id="btnOtra">Subir otra foto</button>
+    </div>
+
+  </main>
+
+  <!-- Si el evento no existe en eventos.js -->
+  <div id="not-found">
+    <h2>❌ Evento no encontrado</h2>
+    <p>El enlace no es válido. Comprueba que el llavero NFC esté configurado correctamente.</p>
+  </div>
+
+  <footer>NFC Eventos &copy; 2026</footer>
+
+  <script>
+    // ── 1. Leer el parámetro ?evento= de la URL ──────────────
+    const params    = new URLSearchParams(window.location.search);
+    const eventoKey = params.get('evento') || EVENTO_DEFAULT;
+    const evento    = EVENTOS[eventoKey];
+
+    if (!evento) {
+      // Evento desconocido → mostrar aviso
+      document.getElementById('not-found').style.display = 'block';
+    } else {
+      // ── 2. Aplicar colores del evento ─────────────────────
+      document.documentElement.style.setProperty('--color-principal', evento.color);
+      document.documentElement.style.setProperty('--color-fondo',     evento.colorFondo);
+      document.title = evento.nombre + ' — Sube tus fotos';
+
+      // ── 3. Rellenar textos ────────────────────────────────
+      document.getElementById('h-emoji').textContent  = evento.emoji;
+      document.getElementById('h-nombre').textContent = evento.nombre;
+      document.getElementById('h-tipo').textContent   = evento.tipo;
+      document.getElementById('h-fecha').textContent  = evento.fecha;
+      document.getElementById('p-mensaje').textContent = evento.mensajeSubida;
+      document.getElementById('success-txt').textContent =
+        'Gracias por compartir este momento. Tu foto ya forma parte del álbum de ' + evento.nombre + '.';
+
+      // ── 4. Mostrar contenido ──────────────────────────────
+      document.getElementById('header').style.display       = '';
+      document.getElementById('main-content').style.display = '';
+
+      // ── 5. Lógica de subida ───────────────────────────────
+      const CLOUD_NAME = 'nfc-eventos'; // ← tu cloud name de Cloudinary
+
+      const dropZone    = document.getElementById('dropZone');
+      const fileInput   = document.getElementById('fileInput');
+      const previewCont = document.getElementById('preview-container');
+      const previewImg  = document.getElementById('preview-img');
+      const btnCambiar  = document.getElementById('btnCambiar');
+      const btnSubir    = document.getElementById('btnSubir');
+      const progressWrap= document.getElementById('progressWrap');
+      const progressFill= document.getElementById('progressFill');
+      const progressTxt = document.getElementById('progressTxt');
+      const errorMsg    = document.getElementById('errorMsg');
+      const successMsg  = document.getElementById('success-msg');
+      const btnOtra     = document.getElementById('btnOtra');
+
+      let selectedFile = null;
+
+      // Abrir selector al pulsar la zona o al cambiar
+      dropZone.addEventListener('click', () => fileInput.click());
+      btnCambiar.addEventListener('click', () => fileInput.click());
+
+      // Drag & drop
+      dropZone.addEventListener('dragover', e => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+      });
+      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+      dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) mostrarPreview(file);
+      });
+
+      // Seleccionar archivo
+      fileInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (file) mostrarPreview(file);
+      });
+
+      function mostrarPreview(file) {
+        selectedFile = file;
+        const url = URL.createObjectURL(file);
+        previewImg.src = url;
+        dropZone.style.display          = 'none';
+        previewCont.style.display       = 'flex';
+        btnSubir.style.display          = 'block';
+        errorMsg.style.display          = 'none';
+      }
+
+      // Subir a Cloudinary
+      btnSubir.addEventListener('click', async () => {
+        if (!selectedFile) return;
+
+        btnSubir.disabled     = true;
+        progressWrap.style.display = 'flex';
+        progressFill.style.width   = '0%';
+        progressTxt.textContent    = 'Preparando...';
+        errorMsg.style.display     = 'none';
+
+        const formData = new FormData();
+        formData.append('file',           selectedFile);
+        formData.append('upload_preset',  evento.preset);
+
+        try {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST',
+            `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`);
+
+          xhr.upload.addEventListener('progress', e => {
+            if (e.lengthComputable) {
+              const pct = Math.round((e.loaded / e.total) * 100);
+              progressFill.style.width  = pct + '%';
+              progressTxt.textContent   = 'Subiendo... ' + pct + '%';
+            }
+          });
+
+          xhr.addEventListener('load', () => {
+            progressWrap.style.display = 'none';
+            if (xhr.status === 200) {
+              previewCont.style.display = 'none';
+              btnSubir.style.display    = 'none';
+              successMsg.style.display  = 'flex';
+            } else {
+              mostrarError('Error al subir la foto (' + xhr.status + '). Inténtalo de nuevo.');
+              btnSubir.disabled = false;
+            }
+          });
+
+          xhr.addEventListener('error', () => {
+            progressWrap.style.display = 'none';
+            mostrarError('No se pudo conectar. Comprueba tu conexión a internet.');
+            btnSubir.disabled = false;
+          });
+
+          xhr.send(formData);
+
+        } catch (err) {
+          progressWrap.style.display = 'none';
+          mostrarError('Error inesperado: ' + err.message);
+          btnSubir.disabled = false;
+        }
+      });
+
+      function mostrarError(msg) {
+        errorMsg.textContent    = msg;
+        errorMsg.style.display  = 'block';
+      }
+
+      // Subir otra foto
+      btnOtra.addEventListener('click', () => {
+        selectedFile              = null;
+        fileInput.value           = '';
+        previewImg.src            = '';
+        successMsg.style.display  = 'none';
+        previewCont.style.display = 'none';
+        btnSubir.style.display    = 'none';
+        dropZone.style.display    = '';
+        btnSubir.disabled         = false;
+      });
+    }
+  </script>
+
+</body>
+</html>
