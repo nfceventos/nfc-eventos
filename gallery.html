@@ -266,7 +266,7 @@
 
     async function cargarFotos() {
       try {
-        const res  = await fetch('/api/photos?evento=' + eventoKey);
+        const res = await fetch('/.netlify/functions/photos?evento=' + eventoKey);
         const data = await res.json();
 
         document.getElementById('loading-skeleton').style.display = 'none';
