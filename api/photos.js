@@ -1,11 +1,10 @@
-const https = require('https');
-
 exports.handler = async function(event) {
   const evento = event.queryStringParameters && event.queryStringParameters.evento;
 
   const EVENTOS_VALIDOS = {
     'cliente-01': 'eventos/cliente-01',
     'cliente-02': 'eventos/cliente-02',
+    // Añade más eventos aquí...
   };
 
   if (!evento) {
@@ -37,6 +36,6 @@ exports.handler = async function(event) {
   return {
     statusCode: 200,
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ photos, total: photos.length, cloudName, carpeta, rawData: data })
+    body: JSON.stringify({ photos, total: photos.length })
   };
 };
