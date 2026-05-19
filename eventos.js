@@ -10,7 +10,7 @@ const EVENTOS = {
     mensajeSubida:  "Comparte tus fotos del día especial",
     mensajeGaleria: "Todos los momentos del evento",
     carpeta:        "eventos/cliente-01",
-    preset:         "eventos-cliente-01"
+    preset:         "evento-01"
   },
 
   'cliente-02': {
@@ -23,7 +23,7 @@ const EVENTOS = {
     mensajeSubida:  "Comparte tus fotos del día especial",
     mensajeGaleria: "Todos los momentos del evento",
     carpeta:        "eventos/cliente-02",
-    preset:         "eventos-cliente-02"
+    preset:         "evento-02"
   }
 
 };
