@@ -22,9 +22,7 @@ exports.handler = async function(event) {
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
   const credentials = Buffer.from(`${apiKey}:${apiSecret}`).toString('base64');
-  const url = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image?type=upload&prefix=${encodeURIComponent(carpeta)}&max_results=500&resource_type=image`;
-console.log('Buscando en:', url);
-console.log('Carpeta:', carpeta);
+  const url = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image?type=upload&prefix=${encodeURIComponent(carpeta)}&max_results=500`;
 
   const response = await fetch(url, {
     headers: { 'Authorization': `Basic ${credentials}` }
@@ -39,6 +37,6 @@ console.log('Carpeta:', carpeta);
   return {
     statusCode: 200,
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ photos, total: photos.length })
+    body: JSON.stringify({ photos, total: photos.length, cloudName, carpeta, rawData: data })
   };
 };
