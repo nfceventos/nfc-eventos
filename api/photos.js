@@ -5,7 +5,8 @@
 // Lista de eventos válidos (seguridad: evita consultas a carpetas aleatorias)
 // ⚠️  Añade aquí cada evento nuevo que crees
 const EVENTOS_VALIDOS = {
-  'gianna':         'eventos/gianna',
+  'cliente-01': 'eventos/cliente-01',
+  'cliente-02': 'eventos/cliente-02',
   // 'boda-juan-maria': 'eventos/boda-juan-maria',
   // Añade más eventos aquí...
 };
